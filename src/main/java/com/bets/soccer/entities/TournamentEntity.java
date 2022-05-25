@@ -1,6 +1,7 @@
 package com.bets.soccer.entities;
 
-import lombok.Builder;
+import lombok.*;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,6 +10,8 @@ import java.time.LocalDate;
 
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TournamentEntity {
 
     @Id
