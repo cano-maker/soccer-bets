@@ -17,14 +17,9 @@ public class TournamentEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer id;
-
     private String name;
-
     private LocalDate startDate;
-
-    private LocalDate EndDate;
-
+    private LocalDate endDate;
     private boolean isActive;
-
     private String logoPath;
 }
