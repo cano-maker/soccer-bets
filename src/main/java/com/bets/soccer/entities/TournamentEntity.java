@@ -8,7 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
 
-@Entity
+@Entity(name = "Tournament")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

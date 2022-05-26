@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
+
 
 @Controller
 @RequestMapping(path = "/tournament")
@@ -31,11 +31,5 @@ public class TournamentController
         tournamentRepository.save(entity);
         return "Saved";
     }
-
-    @GetMapping(path="/all")
-    public @ResponseBody Iterable<TournamentEntity> getAllTournaments() {
-        return tournamentRepository.findAll();
-    }
-
 
 }
