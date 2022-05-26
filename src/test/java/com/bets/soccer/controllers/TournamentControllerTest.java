@@ -3,6 +3,7 @@ package com.bets.soccer.controllers;
 import com.bets.soccer.models.Tournament;
 import com.bets.soccer.services.TournamentService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -43,13 +44,44 @@ class TournamentControllerTest
                 .logoPath("/home/logo.png")
                 .build();
 
-        when(tournamentService.save(any())).thenReturn(model);
+        when(tournamentService.save(any())).thenReturn("Saved");
         mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Save")));
+                .andExpect(content().string(containsString("Saved")));
+
+        Mockito.verify(tournamentService, times(1)).save(any());
+    }
+
+    @Test
+    public void saveTournamentShouldBeFail() throws Exception {
+        String url = "/tournament/add";
+        String body = "{\n" +
+                "    \"name\":\"Aguila\",\n" +
+                "    \"startDate\": \"2022-05-26\",\n" +
+                "    \"endDate\": \"2022-06-26\",\n" +
+                "    \"isActive\": true,\n" +
+                "    \"logoPath\": \"/home/logo.png\"\n" +
+                "}";
+        var model = Tournament.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(LocalDate.now())
+                .startDate(LocalDate.now())
+                .logoPath("/home/logo.png")
+                .build();
+
+        when(tournamentService.save(any())).thenReturn("Error saved tournament");
+        mockMvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Error saved tournament")));
+
+        Mockito.verify(tournamentService, times(1)).save(any());
     }
 
 }

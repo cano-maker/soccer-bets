@@ -19,8 +19,7 @@ public class TournamentController
 
     @PostMapping(path="/add")
     public @ResponseBody String addNewTournament(@RequestBody Tournament model){
-        tournamentService.save(model);
-        return "Saved";
+        return tournamentService.save(model);
     }
 
 }

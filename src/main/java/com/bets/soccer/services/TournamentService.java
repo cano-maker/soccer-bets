@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 public class TournamentService
 {
     private final TournamentRepository tournamentRepository;
-    public Tournament save(Tournament model)
+    public String save(Tournament model)
     {
         TournamentEntity entity = tournamentRepository.save(modelToEntity(model));
-        return entityToModel(entity);
+        return "Saved";
     }
 
     private TournamentEntity modelToEntity(Tournament model){
