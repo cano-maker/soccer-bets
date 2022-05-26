@@ -10,15 +10,25 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class TournamentService
 {
-
     private final TournamentRepository tournamentRepository;
-    public void save(Tournament model)
+    public Tournament save(Tournament model)
     {
-        tournamentRepository.save(modelToEntity(model));
+        TournamentEntity entity = tournamentRepository.save(modelToEntity(model));
+        return entityToModel(entity);
     }
 
     private TournamentEntity modelToEntity(Tournament model){
         return TournamentEntity.builder()
+                .name(model.getName())
+                .startDate(model.getStartDate())
+                .endDate(model.getEndDate())
+                .logoPath(model.getLogoPath())
+                .isActive(model.isActive())
+                .build();
+    }
+
+    private Tournament entityToModel(TournamentEntity model){
+        return Tournament.builder()
                 .name(model.getName())
                 .startDate(model.getStartDate())
                 .endDate(model.getEndDate())

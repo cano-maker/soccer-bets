@@ -10,6 +10,7 @@ import java.time.LocalDate;
 
 @Entity(name = "Tournament")
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TournamentEntity {
