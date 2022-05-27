@@ -22,6 +22,16 @@ public class TournamentService
         return "Saved";
     }
 
+    public void addTournament(Tournament model)
+    {
+        var tournamentFound = tournamentRepository.findTournamentByName(model.getName());
+        if (tournamentFound.isPresent()) {
+            var message = String.format("Tournament %s is already present", model.getName());
+            throw new IllegalStateException(message);
+        }
+        tournamentRepository.save(modelToEntity(model));
+    }
+
     private TournamentEntity modelToEntity(Tournament model){
         return TournamentEntity.builder()
                 .name(model.getName())
@@ -31,4 +41,5 @@ public class TournamentService
                 .isActive(model.isActive())
                 .build();
     }
+
 }

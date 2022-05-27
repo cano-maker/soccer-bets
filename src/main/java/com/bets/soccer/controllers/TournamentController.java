@@ -22,4 +22,9 @@ public class TournamentController
         return tournamentService.save(model);
     }
 
+    @PostMapping(path="/addTournament")
+    public void addTournament(@RequestBody Tournament model){
+       tournamentService.addTournament(model);
+    }
+
 }

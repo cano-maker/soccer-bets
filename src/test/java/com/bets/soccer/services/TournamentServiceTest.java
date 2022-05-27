@@ -65,6 +65,32 @@ class TournamentServiceTest
         verify(tournamentRepository, times(1)).save(any());
     }
 
+    @Test
+    void saveShouldReturnFailWhenTournamentIsAlreadyExistTrowException()
+    {
+        Tournament model = Tournament.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(LocalDate.now())
+                .startDate(LocalDate.now())
+                .logoPath("/home/logo.png")
+                .build();
+        TournamentEntity entity = modelToEntity(model);
+
+        when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.of(entity));
+        when(tournamentRepository.save(any())).thenReturn(null);
+
+        IllegalStateException result = assertThrows(IllegalStateException.class, () -> underTest.addTournament(model));
+
+        assertEquals(String.format("Tournament %s is already present", model.getName()), result.getMessage());
+
+        verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(0)).save(any());
+    }
+
+
+
+
     private TournamentEntity modelToEntity(Tournament model){
         return TournamentEntity.builder()
                 .name(model.getName())
