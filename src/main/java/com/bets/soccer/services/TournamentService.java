@@ -13,22 +13,17 @@ public class TournamentService
     private final TournamentRepository tournamentRepository;
     public String save(Tournament model)
     {
-        TournamentEntity entity = tournamentRepository.save(modelToEntity(model));
+        var tournamentFound = tournamentRepository.findTournamentByName(model.getName());
+        if(tournamentFound.isPresent())
+            return String.format("Tournament %s is already present", model.getName());
+
+        var entity = modelToEntity(model);
+        tournamentRepository.save(entity);
         return "Saved";
     }
 
     private TournamentEntity modelToEntity(Tournament model){
         return TournamentEntity.builder()
-                .name(model.getName())
-                .startDate(model.getStartDate())
-                .endDate(model.getEndDate())
-                .logoPath(model.getLogoPath())
-                .isActive(model.isActive())
-                .build();
-    }
-
-    private Tournament entityToModel(TournamentEntity model){
-        return Tournament.builder()
                 .name(model.getName())
                 .startDate(model.getStartDate())
                 .endDate(model.getEndDate())

@@ -3,7 +3,6 @@ package com.bets.soccer.controllers;
 import com.bets.soccer.models.Tournament;
 import com.bets.soccer.services.TournamentService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest()
+@WebMvcTest
 class TournamentControllerTest
 {
     @Autowired
@@ -52,7 +51,7 @@ class TournamentControllerTest
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Saved")));
 
-        Mockito.verify(tournamentService, times(1)).save(any());
+        verify(tournamentService, times(1)).save(any());
     }
 
     @Test
@@ -81,7 +80,7 @@ class TournamentControllerTest
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Error saved tournament")));
 
-        Mockito.verify(tournamentService, times(1)).save(any());
+        verify(tournamentService, times(1)).save(any());
     }
 
 }
