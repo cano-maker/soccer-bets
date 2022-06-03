@@ -1,12 +1,15 @@
 package com.bets.soccer.services;
 
+import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.interfaces.TournamentRepository;
+import com.bets.soccer.models.Category;
 import com.bets.soccer.models.Tournament;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,6 +63,22 @@ public class TournamentService
                 .endDate(entity.getEndDate())
                 .logoPath(entity.getLogoPath())
                 .isActive(entity.isActive())
+                .categories(categorySetEntityToModel(entity.getCategories()))
+                .build();
+    }
+
+    private Set<Category> categorySetEntityToModel(Set<CategoryEntity> categories)
+    {
+        return categories.stream()
+                .map(this::categoryEntityToModel)
+                .collect(Collectors.toSet());
+    }
+
+    private Category categoryEntityToModel(CategoryEntity categoryEntity)
+    {
+        return Category.builder()
+                .id(categoryEntity.getId())
+                .name(categoryEntity.getName())
                 .build();
     }
 }

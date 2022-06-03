@@ -1,13 +1,16 @@
 package com.bets.soccer.services;
 
+import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.interfaces.TournamentRepository;
+import com.bets.soccer.models.Category;
 import com.bets.soccer.models.Tournament;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -99,9 +102,18 @@ class TournamentServiceTest
                 .endDate(LocalDate.now())
                 .startDate(LocalDate.now())
                 .logoPath("/home/logo.png")
+                .categories(Set.of(Category.builder().build()))
                 .build();
 
-        TournamentEntity entity = modelToEntity(model);
+        TournamentEntity entity = TournamentEntity.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(LocalDate.now())
+                .startDate(LocalDate.now())
+                .logoPath("/home/logo.png")
+                .categories(Set.of(CategoryEntity.builder().build()))
+                .build();
+
 
         List<TournamentEntity> listItems = List.of(entity);
 

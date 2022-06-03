@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -15,4 +16,6 @@ public class Tournament
     private final LocalDate endDate;
     private final boolean isActive;
     private final String logoPath;
+    private final Set<Category> categories;
+
 }
