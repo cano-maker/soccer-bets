@@ -8,26 +8,23 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.Set;
 
-@Entity(name = "Category")
+
+@Entity(name = "Team")
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryEntity
+public class TeamEntity
 {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    private String logoPath;
 
-    @ManyToOne
-    @JoinColumn(name="tournament_id", nullable=false)
-    private TournamentEntity tournament;
-
-    @OneToMany(mappedBy="category")
-    private Set<GameEntity> games;
-
-    @OneToMany(mappedBy="category")
+    @OneToMany(mappedBy="team")
     private Set<CategoryDetailEntity> categoriesDetails;
 
+    @OneToMany(mappedBy="team")
+    private Set<GameEntity> games;
 }
