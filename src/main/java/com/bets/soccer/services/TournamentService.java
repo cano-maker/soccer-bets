@@ -6,6 +6,9 @@ import com.bets.soccer.models.Tournament;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class TournamentService
@@ -32,6 +35,13 @@ public class TournamentService
         tournamentRepository.save(modelToEntity(model));
     }
 
+    public List<Tournament> findAll()
+    {
+        return tournamentRepository.findAll()
+                .stream().map(this::entityToModel)
+                .collect(Collectors.toList());
+    }
+
     private TournamentEntity modelToEntity(Tournament model){
         return TournamentEntity.builder()
                 .name(model.getName())
@@ -42,4 +52,14 @@ public class TournamentService
                 .build();
     }
 
+    private Tournament entityToModel(TournamentEntity entity)
+    {
+        return Tournament.builder()
+                .name(entity.getName())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
+                .logoPath(entity.getLogoPath())
+                .isActive(entity.isActive())
+                .build();
+    }
 }

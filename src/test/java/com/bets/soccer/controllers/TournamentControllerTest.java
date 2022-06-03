@@ -9,9 +9,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
+import java.util.List;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,6 +83,38 @@ class TournamentControllerTest
                 .andExpect(content().string(containsString("Error saved tournament")));
 
         verify(tournamentService, times(1)).save(any());
+    }
+
+    @Test
+    public void findAllTournament() throws Exception {
+        String url = "/tournament/all";
+        String body = "{\n" +
+                "    \"name\":\"Aguila\",\n" +
+                "    \"startDate\": \"2022-05-26\",\n" +
+                "    \"endDate\": \"2022-06-26\",\n" +
+                "    \"isActive\": true,\n" +
+                "    \"logoPath\": \"/home/logo.png\"\n" +
+                "}";
+
+        var model = Tournament.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(LocalDate.now())
+                .startDate(LocalDate.now())
+                .logoPath("/home/logo.png")
+                .build();
+
+        var listItems = List.of(model);
+
+        when(tournamentService.findAll()).thenReturn(listItems);
+
+        mockMvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(tournamentService, times(1)).findAll();
     }
 
 }

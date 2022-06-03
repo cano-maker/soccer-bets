@@ -6,10 +6,13 @@ import com.bets.soccer.models.Tournament;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 class TournamentServiceTest
 {
@@ -17,8 +20,7 @@ class TournamentServiceTest
     private TournamentService underTest;
 
     @BeforeEach
-    void setUp()
-    {
+    void init() {
         tournamentRepository = mock(TournamentRepository.class);
         underTest = new TournamentService(tournamentRepository);
     }
@@ -86,6 +88,31 @@ class TournamentServiceTest
 
         verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
         verify(tournamentRepository, times(0)).save(any());
+    }
+
+    @Test
+    void findAllIsSuccess()
+    {
+        Tournament model = Tournament.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(LocalDate.now())
+                .startDate(LocalDate.now())
+                .logoPath("/home/logo.png")
+                .build();
+
+        TournamentEntity entity = modelToEntity(model);
+
+        List<TournamentEntity> listItems = List.of(entity);
+
+
+        when(tournamentRepository.findAll()).thenReturn(listItems);
+
+        var result = underTest.findAll();
+
+        assertThat(result, hasItem(model));
+
+        verify(tournamentRepository, times(1)).findAll();
     }
 
 

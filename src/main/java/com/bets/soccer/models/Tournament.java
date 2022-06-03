@@ -1,11 +1,13 @@
 package com.bets.soccer.models;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import java.time.LocalDate;
 
 @Builder
 @Getter
+@EqualsAndHashCode
 public class Tournament
 {
     private final String name;
