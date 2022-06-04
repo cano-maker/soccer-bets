@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class TournamentService
 {
     private final TournamentRepository tournamentRepository;
+
     public String save(Tournament model)
     {
         var tournamentFound = tournamentRepository.findTournamentByName(model.getName());
