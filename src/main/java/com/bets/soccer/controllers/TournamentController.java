@@ -16,12 +16,14 @@ public class TournamentController
     private final TournamentService tournamentService;
 
     @PostMapping(path="/add")
-    public @ResponseBody String addNewTournament(@RequestBody Tournament model){
+    public @ResponseBody String addNewTournament(@RequestBody Tournament model)
+    {
         return tournamentService.save(model);
     }
 
     @PostMapping(path="/addTournament")
-    public void addTournament(@RequestBody Tournament model){
+    public void addTournament(@RequestBody Tournament model)
+    {
        tournamentService.addTournament(model);
     }
 

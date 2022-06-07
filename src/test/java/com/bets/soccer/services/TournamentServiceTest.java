@@ -1,9 +1,13 @@
 package com.bets.soccer.services;
 
+import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.CategoryEntity;
+import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
+import com.bets.soccer.models.CategoryDetail;
+import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Tournament;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,7 +106,15 @@ class TournamentServiceTest
                 .endDate(LocalDate.now())
                 .startDate(LocalDate.now())
                 .logoPath("/home/logo.png")
-                .categories(Set.of(Category.builder().build()))
+                .categories(Set.of(Category.builder()
+                                .id(1L)
+                        .categoriesDetails(Set.of(CategoryDetail.builder()
+                                .id(1L)
+                                .build()))
+                        .games(Set.of(Game.builder()
+                                .id(1L)
+                                .build()))
+                        .build()))
                 .build();
 
         TournamentEntity entity = TournamentEntity.builder()
@@ -111,7 +123,15 @@ class TournamentServiceTest
                 .endDate(LocalDate.now())
                 .startDate(LocalDate.now())
                 .logoPath("/home/logo.png")
-                .categories(Set.of(CategoryEntity.builder().build()))
+                .categories(Set.of(CategoryEntity.builder()
+                                .id(1L)
+                        .categoriesDetails(Set.of(CategoryDetailEntity.builder()
+                                .id(1L)
+                                .build()))
+                        .games(Set.of(GameEntity.builder()
+                                .id(1L)
+                                .build()))
+                        .build()))
                 .build();
 
 
