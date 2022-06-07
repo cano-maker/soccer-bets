@@ -49,6 +49,7 @@ class TeamControllerTest
         when(teamService.save(any())).thenReturn(Optional.of(model));
 
         var result = underTest.addNewTeam(model);
+
         assertEquals(model, result);
 
         verify(teamService, times(1)).save(any());

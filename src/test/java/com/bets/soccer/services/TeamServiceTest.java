@@ -1,12 +1,17 @@
 package com.bets.soccer.services;
 
+import com.bets.soccer.entities.CategoryDetailEntity;
+import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TeamEntity;
 import com.bets.soccer.interfaces.TeamRepository;
+import com.bets.soccer.models.CategoryDetail;
+import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,16 +36,31 @@ class TeamServiceTest
         Team model = Team.builder()
                 .name("Nacional")
                 .logoPath("/home/logo.png")
+                .categoriesDetails(Set.of(CategoryDetail.builder()
+                        .id(1L)
+                        .build()))
+                .games(Set.of(Game.builder()
+                        .id(1L)
+                        .build()))
                 .build();
 
         TeamEntity entity = TeamEntity.builder()
                 .name("Nacional")
                 .logoPath("/home/logo.png")
+                .categoriesDetails(Set.of(CategoryDetailEntity.builder()
+                                .id(1L)
+                        .build()))
+                .games(Set.of(GameEntity.builder()
+                                .id(1L)
+                        .build()))
                 .build();
 
         when(teamRepository.save(any())).thenReturn(entity);
+
         var result = underTest.save(model).get();
+
         assertEquals(result, model);
+
         verify(teamRepository, times(1)).save(any());
     }
 
@@ -51,10 +71,22 @@ class TeamServiceTest
         var entity = TeamEntity.builder()
                 .name("Nacional")
                 .logoPath("/home/logo.png")
+                .categoriesDetails(Set.of(CategoryDetailEntity.builder()
+                        .id(1L)
+                        .build()))
+                .games(Set.of(GameEntity.builder()
+                        .id(1L)
+                        .build()))
                 .build();
         var model = Team.builder()
                 .name("Nacional")
                 .logoPath("/home/logo.png")
+                .categoriesDetails(Set.of(CategoryDetail.builder()
+                        .id(1L)
+                        .build()))
+                .games(Set.of(Game.builder()
+                        .id(1L)
+                        .build()))
                 .build();
         var teams = List.of(entity);
 
