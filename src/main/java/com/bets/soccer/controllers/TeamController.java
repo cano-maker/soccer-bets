@@ -4,10 +4,9 @@ import com.bets.soccer.models.Team;
 import com.bets.soccer.services.TeamService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping(path = "/team")
@@ -21,5 +20,11 @@ public class TeamController
     {
         return teamService.save(model)
                 .orElse(Team.builder().build());
+    }
+
+    @GetMapping(path = "/all")
+    public @ResponseBody List<Team> findAll()
+    {
+        return teamService.findAll();
     }
 }

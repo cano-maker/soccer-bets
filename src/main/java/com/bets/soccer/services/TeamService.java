@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,8 +34,16 @@ public class TeamService
     private Team entityToModel(TeamEntity entity)
     {
         return Team.builder()
+                .id(entity.getId())
                 .name(entity.getName())
                 .logoPath(entity.getLogoPath())
                 .build();
+    }
+
+    public List<Team> findAll()
+    {
+        return teamRepository.findAll()
+                .stream().map(this::entityToModel)
+                .collect(Collectors.toList());
     }
 }
