@@ -4,6 +4,7 @@ import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
+import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
 import com.bets.soccer.models.CategoryDetail;
@@ -22,25 +23,14 @@ public class TournamentService
 {
     private final TournamentRepository tournamentRepository;
 
-    public String save(Tournament model)
-    {
-        var tournamentFound = tournamentRepository.findTournamentByName(model.getName());
-        if(tournamentFound.isPresent())
-            return String.format("Tournament %s is already present", model.getName());
-
-        var entity = modelToEntity(model);
-        tournamentRepository.save(entity);
-        return "Saved";
-    }
-
-    public void addTournament(Tournament model)
+    public Tournament add(Tournament model) throws RecordAlreadyExistsException
     {
         var tournamentFound = tournamentRepository.findTournamentByName(model.getName());
         if (tournamentFound.isPresent()) {
             var message = String.format("Tournament %s is already present", model.getName());
-            throw new IllegalStateException(message);
+            throw new RecordAlreadyExistsException(message);
         }
-        tournamentRepository.save(modelToEntity(model));
+        return entityToModel(tournamentRepository.save(modelToEntity(model)));
     }
 
     public List<Tournament> findAll()
