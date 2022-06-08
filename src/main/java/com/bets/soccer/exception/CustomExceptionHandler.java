@@ -16,4 +16,10 @@ public class CustomExceptionHandler  extends ResponseEntityExceptionHandler
         return new ResponseEntity(exception.getMessage(), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(value = RecordNotFoundException.class)
+    public ResponseEntity handleRecordNotFoundException(RecordNotFoundException exception)
+    {
+        return new ResponseEntity(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }

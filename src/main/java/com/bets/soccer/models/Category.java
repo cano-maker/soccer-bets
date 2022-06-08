@@ -16,6 +16,7 @@ public class Category
 
     private final Long id;
     private final String name;
+    private final String tournamentName;
     private final Set<Game> games;
     private final Set<CategoryDetail> categoriesDetails;
 

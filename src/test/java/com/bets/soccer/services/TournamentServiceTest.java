@@ -5,6 +5,7 @@ import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
+import com.bets.soccer.interfaces.CategoryRepository;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
 import com.bets.soccer.models.CategoryDetail;
@@ -25,14 +26,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class TournamentServiceTest
 {
     private TournamentRepository tournamentRepository;
+    private CategoryRepository categoryRepository;
     private TournamentService underTest;
+
 
     private LocalDate today;
 
     @BeforeEach
     void init() {
+        categoryRepository = mock(CategoryRepository.class);
         tournamentRepository = mock(TournamentRepository.class);
-        underTest = new TournamentService(tournamentRepository);
+        underTest = new TournamentService(tournamentRepository,
+                categoryRepository);
         today = LocalDate.now();
     }
 
@@ -85,6 +90,32 @@ class TournamentServiceTest
         verify(tournamentRepository, times(1)).findAll();
     }
 
+    @Test
+    void saveCategorySuccess()
+    {
+        var tournamentEntity = getTournamentEntityFounded();
+        var model = Category.builder()
+                .name("A")
+                .tournamentName("Aguila")
+                .build();
+
+        var entity = CategoryEntity.builder()
+                .name("A")
+                .tournament(tournamentEntity)
+                .build();
+
+        when(categoryRepository.save(entity)).thenReturn(entity);
+        when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.of(tournamentEntity));
+
+        var result = underTest.addCategory(model);
+
+        assertEquals(model, result);
+
+        verify(categoryRepository, times(1)).save(entity);
+        verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
+
+    }
+
 
     private TournamentEntity getTournamentEntityFounded() {
         return TournamentEntity.builder()
@@ -94,6 +125,7 @@ class TournamentServiceTest
                 .startDate(today)
                 .logoPath("/home/logo.png")
                 .categories(Set.of(CategoryEntity.builder()
+                                .name("B")
                         .id(1L)
                         .categoriesDetails(Set.of(CategoryDetailEntity.builder()
                                 .id(1L)
@@ -123,6 +155,7 @@ class TournamentServiceTest
                 .startDate(today)
                 .logoPath("/home/logo.png")
                 .categories(Set.of(Category.builder()
+                                .name("B")
                         .id(1L)
                         .categoriesDetails(Set.of(CategoryDetail.builder()
                                 .id(1L)
@@ -133,5 +166,6 @@ class TournamentServiceTest
                         .build()))
                 .build();
     }
+
 
 }

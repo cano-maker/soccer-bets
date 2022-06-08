@@ -1,5 +1,6 @@
 package com.bets.soccer.controllers;
 
+import com.bets.soccer.models.Category;
 import com.bets.soccer.models.Tournament;
 import com.bets.soccer.services.TournamentService;
 import lombok.AllArgsConstructor;
@@ -31,5 +32,10 @@ public class TournamentController
         return new ResponseEntity(result,HttpStatus.OK);
     }
 
-
+    @PostMapping(path = "/category/add")
+    public ResponseEntity addCategory(@RequestBody Category model)
+    {
+        Category result = tournamentService.addCategory(model);
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
 }

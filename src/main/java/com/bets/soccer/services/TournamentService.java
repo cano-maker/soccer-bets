@@ -5,6 +5,8 @@ import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
+import com.bets.soccer.exception.RecordNotFoundException;
+import com.bets.soccer.interfaces.CategoryRepository;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
 import com.bets.soccer.models.CategoryDetail;
@@ -12,7 +14,10 @@ import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Tournament;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +26,7 @@ import java.util.stream.Collectors;
 public class TournamentService
 {
     private final TournamentRepository tournamentRepository;
+    private final CategoryRepository categoryRepository;
 
     public Tournament add(Tournament model) throws RecordAlreadyExistsException
     {
@@ -118,6 +124,34 @@ public class TournamentService
                 .teamLocalId(entity.getTeamLocalId())
                 .teamVisitorId(entity.getTeamVisitorId())
                 .isClosed(entity.isClosed())
+                .build();
+    }
+
+    @Transactional
+    public Category addCategory(Category model)
+    {
+        var tournamentFound = tournamentRepository.findTournamentByName(model.getTournamentName());
+        if(!tournamentFound.isPresent())
+            throw new RecordNotFoundException(String.format("Tournament doesn't exist"));
+
+        if(isCategoryPresent(model, tournamentFound))
+            throw new RecordAlreadyExistsException(String.format("Category %s is already present", model.getName()));
+
+        var entity = categoryModelToEntity(model, tournamentFound.get());
+        categoryRepository.save(entity);
+        return model;
+    }
+
+    private boolean isCategoryPresent(Category model, Optional<TournamentEntity> tournamentFound) {
+        return tournamentFound.get().getCategories()
+                .stream().anyMatch(categoryEntity -> categoryEntity.getName().equals(model.getName()));
+    }
+
+    private CategoryEntity categoryModelToEntity(Category model, TournamentEntity tournamentFound)
+    {
+        return CategoryEntity.builder()
+                .tournament(tournamentFound)
+                .name(model.getName())
                 .build();
     }
 }

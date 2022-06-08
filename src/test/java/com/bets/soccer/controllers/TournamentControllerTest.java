@@ -77,4 +77,24 @@ class TournamentControllerTest
         verify(tournamentService, times(1)).findAll();
     }
 
+    @Test
+    public void saveCategoryForTournamentWasSuccessful()
+    {
+
+        var model = Category.builder()
+                .name("A")
+                .tournamentName("Aguila")
+                .build();
+
+        when(tournamentService.addCategory(model)).thenReturn(model);
+
+        var result = underTest.addCategory(model);
+        Category entity = (Category) result.getBody();
+
+        assertEquals(model, entity);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+
+        verify(tournamentService, times(1)).addCategory(model);
+    }
+
 }

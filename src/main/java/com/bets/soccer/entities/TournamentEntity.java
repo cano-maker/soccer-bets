@@ -22,6 +22,6 @@ public class TournamentEntity {
     private boolean isActive;
     private String logoPath;
 
-    @OneToMany(mappedBy="tournament")
+    @OneToMany(mappedBy="tournament", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<CategoryEntity> categories;
 }

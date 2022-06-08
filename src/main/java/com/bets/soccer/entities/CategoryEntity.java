@@ -1,9 +1,6 @@
 package com.bets.soccer.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -13,6 +10,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class CategoryEntity
 {
     @Id
@@ -21,6 +19,7 @@ public class CategoryEntity
     private String name;
 
     @ManyToOne
+    @EqualsAndHashCode.Exclude @ToString.Exclude
     @JoinColumn(name="tournament_id", nullable=false)
     private TournamentEntity tournament;
 
