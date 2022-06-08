@@ -29,9 +29,8 @@ public class TournamentService
             var message = String.format("Tournament %s is already present", model.getName());
             throw new RecordAlreadyExistsException(message);
         }
-        TournamentEntity entity = modelToEntity(model);
-        entity = tournamentRepository.save(entity);
-        return entityToModel(entity);
+        tournamentRepository.save(modelToEntity(model));
+        return model;
     }
 
     private TournamentEntity modelToEntity(Tournament model){
