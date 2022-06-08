@@ -10,6 +10,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class TournamentEntity {
 
     @Id

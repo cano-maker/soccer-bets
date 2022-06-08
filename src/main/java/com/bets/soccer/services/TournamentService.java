@@ -12,7 +12,6 @@ import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Tournament;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,14 +29,9 @@ public class TournamentService
             var message = String.format("Tournament %s is already present", model.getName());
             throw new RecordAlreadyExistsException(message);
         }
-        return entityToModel(tournamentRepository.save(modelToEntity(model)));
-    }
-
-    public List<Tournament> findAll()
-    {
-        return tournamentRepository.findAll()
-                .stream().map(this::entityToModel)
-                .collect(Collectors.toList());
+        TournamentEntity entity = modelToEntity(model);
+        entity = tournamentRepository.save(entity);
+        return entityToModel(entity);
     }
 
     private TournamentEntity modelToEntity(Tournament model){
@@ -48,6 +42,13 @@ public class TournamentService
                 .logoPath(model.getLogoPath())
                 .isActive(model.isActive())
                 .build();
+    }
+
+    public List<Tournament> findAll()
+    {
+        return tournamentRepository.findAll()
+                .stream().map(this::entityToModel)
+                .collect(Collectors.toList());
     }
 
     private Tournament entityToModel(TournamentEntity entity)

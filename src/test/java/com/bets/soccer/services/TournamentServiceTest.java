@@ -4,6 +4,7 @@ import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
+import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
 import com.bets.soccer.models.CategoryDetail;
@@ -26,65 +27,75 @@ class TournamentServiceTest
     private TournamentRepository tournamentRepository;
     private TournamentService underTest;
 
+    private LocalDate today;
+
     @BeforeEach
     void init() {
         tournamentRepository = mock(TournamentRepository.class);
         underTest = new TournamentService(tournamentRepository);
+        today = LocalDate.now();
+    }
+
+    @Test
+    void saveTournamentSuccess()
+    {
+        Tournament model = getTournamentModel();
+        TournamentEntity entity = getTournamentEntity();
+        TournamentEntity entityFounded = getTournamentEntityFounded();
+
+        when(tournamentRepository.save(entity)).thenReturn(entityFounded);
+        when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.empty());
+
+        var result = underTest.add(model);
+
+        assertEquals(model, result);
+
+        verify(tournamentRepository, times(1)).save(entity);
+        verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
+
     }
 
 
+    @Test
+    void saveShouldReturnFailWhenTournamentIsAlreadyExistTrowException()
+    {
+        Tournament model = getTournamentModel();
+        TournamentEntity entity = getTournamentEntityFounded();
 
-//    @Test
-//    void saveShouldReturnFailWhenTournamentIsAlreadyExistTrowException()
-//    {
-//        Tournament model = Tournament.builder()
-//                .name("Aguila")
-//                .isActive(true)
-//                .endDate(LocalDate.now())
-//                .startDate(LocalDate.now())
-//                .logoPath("/home/logo.png")
-//                .build();
-//        TournamentEntity entity = modelToEntity(model);
-//
-//        when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.of(entity));
-//        when(tournamentRepository.save(any())).thenReturn(null);
-//
-//        IllegalStateException result = assertThrows(IllegalStateException.class, () -> underTest.addTournament(model));
-//
-//        assertEquals(String.format("Tournament %s is already present", model.getName()), result.getMessage());
-//
-//        verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
-//        verify(tournamentRepository, times(0)).save(any());
-//    }
+        when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.of(entity));
+
+        RecordAlreadyExistsException result = assertThrows(RecordAlreadyExistsException.class, () -> underTest.add(model));
+
+        assertEquals(String.format("Tournament %s is already present", model.getName()), result.getMessage());
+
+        verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(0)).save(any());
+    }
 
     @Test
     void findAllIsSuccess()
     {
-        Tournament model = Tournament.builder()
-                .name("Aguila")
-                .isActive(true)
-                .endDate(LocalDate.now())
-                .startDate(LocalDate.now())
-                .logoPath("/home/logo.png")
-                .categories(Set.of(Category.builder()
-                                .id(1L)
-                        .categoriesDetails(Set.of(CategoryDetail.builder()
-                                .id(1L)
-                                .build()))
-                        .games(Set.of(Game.builder()
-                                .id(1L)
-                                .build()))
-                        .build()))
-                .build();
+        Tournament model = getTournamentModel();
+        TournamentEntity entity = getTournamentEntityFounded();
+        List<TournamentEntity> listItems = List.of(entity);
 
-        TournamentEntity entity = TournamentEntity.builder()
+        when(tournamentRepository.findAll()).thenReturn(listItems);
+        var result = underTest.findAll();
+
+        assertThat(result, hasItem(model));
+        verify(tournamentRepository, times(1)).findAll();
+    }
+
+
+    private TournamentEntity getTournamentEntityFounded() {
+        return TournamentEntity.builder()
                 .name("Aguila")
                 .isActive(true)
-                .endDate(LocalDate.now())
-                .startDate(LocalDate.now())
+                .endDate(today)
+                .startDate(today)
                 .logoPath("/home/logo.png")
                 .categories(Set.of(CategoryEntity.builder()
-                                .id(1L)
+                        .id(1L)
                         .categoriesDetails(Set.of(CategoryDetailEntity.builder()
                                 .id(1L)
                                 .build()))
@@ -93,30 +104,35 @@ class TournamentServiceTest
                                 .build()))
                         .build()))
                 .build();
-
-
-        List<TournamentEntity> listItems = List.of(entity);
-
-
-        when(tournamentRepository.findAll()).thenReturn(listItems);
-
-        var result = underTest.findAll();
-
-        assertThat(result, hasItem(model));
-
-        verify(tournamentRepository, times(1)).findAll();
     }
 
-
-
-
-    private TournamentEntity modelToEntity(Tournament model){
+    private TournamentEntity getTournamentEntity() {
         return TournamentEntity.builder()
-                .name(model.getName())
-                .startDate(model.getStartDate())
-                .endDate(model.getEndDate())
-                .logoPath(model.getLogoPath())
-                .isActive(model.isActive())
+                .name("Aguila")
+                .isActive(true)
+                .endDate(today)
+                .startDate(today)
+                .logoPath("/home/logo.png")
                 .build();
     }
+
+    private Tournament getTournamentModel() {
+        return Tournament.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(today)
+                .startDate(today)
+                .logoPath("/home/logo.png")
+                .categories(Set.of(Category.builder()
+                        .id(1L)
+                        .categoriesDetails(Set.of(CategoryDetail.builder()
+                                .id(1L)
+                                .build()))
+                        .games(Set.of(Game.builder()
+                                .id(1L)
+                                .build()))
+                        .build()))
+                .build();
+    }
+
 }
