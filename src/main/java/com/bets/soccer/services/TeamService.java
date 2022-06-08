@@ -3,6 +3,7 @@ package com.bets.soccer.services;
 import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TeamEntity;
+import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.interfaces.TeamRepository;
 import com.bets.soccer.models.CategoryDetail;
 import com.bets.soccer.models.Game;
@@ -20,10 +21,16 @@ public class TeamService
 {
     private final TeamRepository teamRepository;
 
-    public Optional<Team> save(Team model)
+    public Optional<Team> add(Team model)
     {
-        TeamEntity result = teamRepository.save(modelToEntity(model));
-        return Optional.ofNullable(entityToModel(result));
+        var teamFound = teamRepository.findTeamByName(model.getName());
+        if (teamFound.isPresent()) {
+            var message = String.format("Team %s is already present", model.getName());
+            throw new RecordAlreadyExistsException(message);
+        }
+        teamRepository.save(modelToEntity(model));
+        return Optional.of(model);
+
     }
 
     private TeamEntity modelToEntity(Team model)

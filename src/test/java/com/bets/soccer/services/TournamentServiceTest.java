@@ -41,9 +41,8 @@ class TournamentServiceTest
     {
         Tournament model = getTournamentModel();
         TournamentEntity entity = getTournamentEntity();
-        TournamentEntity entityFounded = getTournamentEntityFounded();
 
-        when(tournamentRepository.save(entity)).thenReturn(entityFounded);
+        when(tournamentRepository.save(entity)).thenReturn(entity);
         when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.empty());
 
         var result = underTest.add(model);

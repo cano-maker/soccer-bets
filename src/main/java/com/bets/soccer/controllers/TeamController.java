@@ -18,7 +18,7 @@ public class TeamController
     @PostMapping(path = "/addTeam")
     public @ResponseBody Team addNewTeam(@RequestBody Team model)
     {
-        return teamService.save(model)
+        return teamService.add(model)
                 .orElse(Team.builder().build());
     }
 

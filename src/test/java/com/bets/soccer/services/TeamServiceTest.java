@@ -3,14 +3,18 @@ package com.bets.soccer.services;
 import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TeamEntity;
+import com.bets.soccer.entities.TournamentEntity;
+import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.interfaces.TeamRepository;
 import com.bets.soccer.models.CategoryDetail;
 import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Team;
+import com.bets.soccer.models.Tournament;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -33,61 +37,45 @@ class TeamServiceTest
     @Test
     void saveTeamWasSuccessful()
     {
-        Team model = Team.builder()
-                .name("Nacional")
-                .logoPath("/home/logo.png")
-                .categoriesDetails(Set.of(CategoryDetail.builder()
-                        .id(1L)
-                        .build()))
-                .games(Set.of(Game.builder()
-                        .id(1L)
-                        .build()))
-                .build();
+        Team model = getTeamModel();
 
-        TeamEntity entity = TeamEntity.builder()
-                .name("Nacional")
-                .logoPath("/home/logo.png")
-                .categoriesDetails(Set.of(CategoryDetailEntity.builder()
-                                .id(1L)
-                        .build()))
-                .games(Set.of(GameEntity.builder()
-                                .id(1L)
-                        .build()))
-                .build();
+        TeamEntity entity = getTeamEntity();
 
-        when(teamRepository.save(any())).thenReturn(entity);
+        when(teamRepository.save(entity)).thenReturn(entity);
+        when(teamRepository.findTeamByName(model.getName())).thenReturn(Optional.empty());
 
-        var result = underTest.save(model).get();
+        var result = underTest.add(model).get();
 
         assertEquals(result, model);
 
-        verify(teamRepository, times(1)).save(any());
+        verify(teamRepository, times(1)).save(entity);
+        verify(teamRepository, times(1)).findTeamByName(model.getName());
+    }
+
+
+
+    @Test
+    void saveShouldReturnFailWhenTournamentIsAlreadyExistTrowException()
+    {
+        Team model = getTeamModel();
+        TeamEntity entity = getTeamEntityFounded();
+
+        when(teamRepository.findTeamByName(model.getName())).thenReturn(Optional.of(entity));
+
+        RecordAlreadyExistsException result = assertThrows(RecordAlreadyExistsException.class, () -> underTest.add(model));
+
+        assertEquals(String.format("Team %s is already present", model.getName()), result.getMessage());
+
+        verify(teamRepository, times(1)).findTeamByName(model.getName());
+        verify(teamRepository, times(0)).save(any());
     }
 
     @Test
     public void findAllTeamWasSuccessful() throws Exception
     {
 
-        var entity = TeamEntity.builder()
-                .name("Nacional")
-                .logoPath("/home/logo.png")
-                .categoriesDetails(Set.of(CategoryDetailEntity.builder()
-                        .id(1L)
-                        .build()))
-                .games(Set.of(GameEntity.builder()
-                        .id(1L)
-                        .build()))
-                .build();
-        var model = Team.builder()
-                .name("Nacional")
-                .logoPath("/home/logo.png")
-                .categoriesDetails(Set.of(CategoryDetail.builder()
-                        .id(1L)
-                        .build()))
-                .games(Set.of(Game.builder()
-                        .id(1L)
-                        .build()))
-                .build();
+        var entity = getTeamEntityFounded();
+        var model = getTeamModel();
         var teams = List.of(entity);
 
 
@@ -100,5 +88,37 @@ class TeamServiceTest
         verify(teamRepository, times(1)).findAll();
     }
 
+    private TeamEntity getTeamEntityFounded() {
+        return TeamEntity.builder()
+                .name("Nacional")
+                .logoPath("/home/logo.png")
+                .categoriesDetails(Set.of(CategoryDetailEntity.builder()
+                        .id(1L)
+                        .build()))
+                .games(Set.of(GameEntity.builder()
+                        .id(1L)
+                        .build()))
+                .build();
+    }
+
+    private TeamEntity getTeamEntity() {
+        return TeamEntity.builder()
+                .name("Nacional")
+                .logoPath("/home/logo.png")
+                .build();
+    }
+
+    private Team getTeamModel() {
+        return Team.builder()
+                .name("Nacional")
+                .logoPath("/home/logo.png")
+                .categoriesDetails(Set.of(CategoryDetail.builder()
+                        .id(1L)
+                        .build()))
+                .games(Set.of(Game.builder()
+                        .id(1L)
+                        .build()))
+                .build();
+    }
 
 }
