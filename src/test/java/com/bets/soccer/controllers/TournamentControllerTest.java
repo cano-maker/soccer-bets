@@ -1,121 +1,80 @@
-//package com.bets.soccer.controllers;
-//
-//import com.bets.soccer.models.Tournament;
-//import com.bets.soccer.services.TournamentService;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-//import org.springframework.test.web.servlet.MockMvc;
-//import java.time.LocalDate;
-//import java.util.List;
-//
-//import static org.hamcrest.Matchers.containsString;
-//import static org.mockito.Mockito.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//@WebMvcTest
-//class TournamentControllerTest
-//{
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockBean
-//    private TournamentService tournamentService;
-//
-//    @Test
-//    public void saveTournamentShouldBeSuccessful() throws Exception {
-//        String url = "/tournament/add";
-//        String body = "{\n" +
-//                "    \"name\":\"Aguila\",\n" +
-//                "    \"startDate\": \"2022-05-26\",\n" +
-//                "    \"endDate\": \"2022-06-26\",\n" +
-//                "    \"isActive\": true,\n" +
-//                "    \"logoPath\": \"/home/logo.png\"\n" +
-//                "}";
-//        var model = Tournament.builder()
-//                .name("Aguila")
-//                .isActive(true)
-//                .endDate(LocalDate.now())
-//                .startDate(LocalDate.now())
-//                .logoPath("/home/logo.png")
-//                .build();
-//
-//        when(tournamentService.save(any())).thenReturn("Saved");
-//        mockMvc.perform(post(url)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(body))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(content().string(containsString("Saved")));
-//
-//        verify(tournamentService, times(1)).save(any());
-//    }
-//
-//    @Test
-//    public void saveTournamentShouldBeFail() throws Exception {
-//        String url = "/tournament/add";
-//        String body = "{\n" +
-//                "    \"name\":\"Aguila\",\n" +
-//                "    \"startDate\": \"2022-05-26\",\n" +
-//                "    \"endDate\": \"2022-06-26\",\n" +
-//                "    \"isActive\": true,\n" +
-//                "    \"logoPath\": \"/home/logo.png\"\n" +
-//                "}";
-//        var model = Tournament.builder()
-//                .name("Aguila")
-//                .isActive(true)
-//                .endDate(LocalDate.now())
-//                .startDate(LocalDate.now())
-//                .logoPath("/home/logo.png")
-//                .build();
-//
-//        when(tournamentService.save(any())).thenReturn("Error saved tournament");
-//        mockMvc.perform(post(url)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(body))
-//                .andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(content().string(containsString("Error saved tournament")));
-//
-//        verify(tournamentService, times(1)).save(any());
-//    }
-//
-//    @Test
-//    public void findAllTournament() throws Exception {
-//        String url = "/tournament/all";
-//        String body = "{\n" +
-//                "    \"name\":\"Aguila\",\n" +
-//                "    \"startDate\": \"2022-05-26\",\n" +
-//                "    \"endDate\": \"2022-06-26\",\n" +
-//                "    \"isActive\": true,\n" +
-//                "    \"logoPath\": \"/home/logo.png\"\n" +
-//                "}";
-//
-//        var model = Tournament.builder()
-//                .name("Aguila")
-//                .isActive(true)
-//                .endDate(LocalDate.now())
-//                .startDate(LocalDate.now())
-//                .logoPath("/home/logo.png")
-//                .build();
-//
-//        var listItems = List.of(model);
-//
-//        when(tournamentService.findAll()).thenReturn(listItems);
-//
-//        mockMvc.perform(get(url)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(""))
-//                .andDo(print())
-//                .andExpect(status().isOk());
-//
-//        verify(tournamentService, times(1)).findAll();
-//    }
-//
-//}
+package com.bets.soccer.controllers;
+
+import com.bets.soccer.models.*;
+import com.bets.soccer.services.TournamentService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
+import java.time.LocalDate;
+import java.util.List;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+
+class TournamentControllerTest
+{
+    private TournamentController underTest;
+    private TournamentService tournamentService;
+    private LocalDate today;
+
+    @BeforeEach
+    void setUp()
+    {
+        tournamentService = mock(TournamentService.class);
+        underTest = new TournamentController(tournamentService);
+        today = LocalDate.now();
+    }
+
+    @Test
+    public void saveTournamentWasSuccessful()
+    {
+
+        var model = Tournament.builder()
+            .name("Aguila")
+            .isActive(true)
+            .endDate(today)
+            .startDate(today)
+            .logoPath("/home/logo.png")
+            .build();
+
+        when(tournamentService.add(model)).thenReturn(model);
+
+        var result = underTest.addTournament(model);
+        Tournament entity = (Tournament) result.getBody();
+
+        assertEquals(model, entity);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+
+        verify(tournamentService, times(1)).add(model);
+    }
+
+    @Test
+    public void findAllTournamentWasSuccessful()
+    {
+
+        var model = Tournament.builder()
+                .name("Aguila")
+                .isActive(true)
+                .endDate(today)
+                .startDate(today)
+                .logoPath("/home/logo.png")
+                .build();
+
+        var teams = List.of(model);
+
+
+        when(tournamentService.findAll()).thenReturn(teams);
+
+        var result = underTest.findAll();
+        List<Tournament> list = (List<Tournament>) result.getBody();
+
+        assertThat(list, hasItem(model));
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+
+        verify(tournamentService, times(1)).findAll();
+    }
+
+}

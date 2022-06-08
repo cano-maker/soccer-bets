@@ -3,6 +3,8 @@ package com.bets.soccer.controllers;
 import com.bets.soccer.models.Team;
 import com.bets.soccer.services.TeamService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +18,16 @@ public class TeamController
     private final TeamService teamService;
 
     @PostMapping(path = "/addTeam")
-    public @ResponseBody Team addNewTeam(@RequestBody Team model)
+    public ResponseEntity addNewTeam(@RequestBody Team model)
     {
-        return teamService.add(model)
+        var result = teamService.add(model)
                 .orElse(Team.builder().build());
+        return new ResponseEntity(result, HttpStatus.OK);
     }
 
     @GetMapping(path = "/all")
-    public @ResponseBody List<Team> findAll()
+    public ResponseEntity findAll()
     {
-        return teamService.findAll();
+        return new ResponseEntity(teamService.findAll(), HttpStatus.OK);
     }
 }

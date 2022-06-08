@@ -4,6 +4,7 @@ import com.bets.soccer.models.Team;
 import com.bets.soccer.services.TeamService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 class TeamControllerTest
 {
@@ -29,7 +29,7 @@ class TeamControllerTest
     }
 
     @Test
-    public void saveTeamWasSuccessful() throws Exception
+    public void saveTeamWasSuccessful()
     {
 
         var model = Team.builder()
@@ -37,17 +37,19 @@ class TeamControllerTest
                 .logoPath("/home/logo.png")
                 .build();
 
-        when(teamService.add(any())).thenReturn(Optional.of(model));
+        when(teamService.add(model)).thenReturn(Optional.of(model));
 
         var result = underTest.addNewTeam(model);
+        Team entity = (Team) result.getBody();
 
-        assertEquals(model, result);
+        assertEquals(model, entity);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(teamService, times(1)).add(any());
+        verify(teamService, times(1)).add(model);
     }
 
     @Test
-    public void findAllTeamWasSuccessful() throws Exception
+    public void findAllTeamWasSuccessful()
     {
 
         var model = Team.builder()
@@ -60,8 +62,10 @@ class TeamControllerTest
         when(teamService.findAll()).thenReturn(teams);
 
         var result = underTest.findAll();
+        List<Team> list = (List<Team>) result.getBody();
 
-        assertThat(result, hasItem(model));
+        assertThat(list, hasItem(model));
+        assertEquals(HttpStatus.OK, result.getStatusCode());
 
         verify(teamService, times(1)).findAll();
     }
