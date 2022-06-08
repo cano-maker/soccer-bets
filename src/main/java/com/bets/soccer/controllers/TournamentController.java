@@ -25,9 +25,10 @@ public class TournamentController
     }
 
     @GetMapping(path="/all")
-    public @ResponseBody List<Tournament> findAll()
+    public ResponseEntity findAll()
     {
-        return tournamentService.findAll();
+        List<Tournament> result = tournamentService.findAll();
+        return new ResponseEntity(result,HttpStatus.OK);
     }
 
 

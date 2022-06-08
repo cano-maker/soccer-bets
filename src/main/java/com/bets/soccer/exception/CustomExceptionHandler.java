@@ -11,7 +11,7 @@ public class CustomExceptionHandler  extends ResponseEntityExceptionHandler
 {
 
     @ExceptionHandler(value = RecordAlreadyExistsException.class)
-    public ResponseEntity handleRecordNotFoundException(RecordAlreadyExistsException exception)
+    public ResponseEntity handleRecordAlreadyExistsException(RecordAlreadyExistsException exception)
     {
         return new ResponseEntity(exception.getMessage(), HttpStatus.CONFLICT);
     }
