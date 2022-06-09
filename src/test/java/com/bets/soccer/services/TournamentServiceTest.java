@@ -6,6 +6,7 @@ import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.exception.RecordNotFoundException;
+import com.bets.soccer.exception.RecordNotValidException;
 import com.bets.soccer.interfaces.CategoryRepository;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
@@ -56,11 +57,10 @@ class TournamentServiceTest
 
         assertEquals(model, result);
 
-        verify(tournamentRepository, times(UNO.value())).save(entity);
-        verify(tournamentRepository, times(UNO.value())).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(ONE.value())).save(entity);
+        verify(tournamentRepository, times(ONE.value())).findTournamentByName(model.getName());
 
     }
-
 
     @Test
     void saveShouldReturnFailWhenTournamentIsAlreadyExistTrowException()
@@ -73,9 +73,59 @@ class TournamentServiceTest
         RecordAlreadyExistsException result = assertThrows(RecordAlreadyExistsException.class, () -> underTest.add(model));
 
         assertEquals(String.format("Tournament %s is already present", model.getName()), result.getMessage());
+        assertEquals(RecordAlreadyExistsException.class, result.getClass());
 
-        verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
-        verify(tournamentRepository, times(0)).save(any());
+        verify(tournamentRepository, times(ONE.value())).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(ZERO.value())).save(any());
+    }
+
+    @Test
+    void saveShouldReturnFailWhenTournamentIsNull()
+    {
+        Tournament model = getTournamentModel();
+        TournamentEntity entity = getTournamentEntityFounded();
+
+        when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.of(entity));
+
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.add(null));
+
+        assertEquals("Tournament value is not valid", result.getMessage());
+        assertEquals(RecordNotValidException.class, result.getClass());
+
+        verify(tournamentRepository, times(ZERO.value())).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(ZERO.value())).save(any());
+    }
+
+    @Test
+    void saveShouldReturnFailWhenTournamentNameIsNull()
+    {
+        Tournament model = Tournament.builder()
+                .isActive(true)
+                .endDate(today)
+                .startDate(today)
+                .logoPath("/home/logo.png")
+                .categories(Set.of(Category.builder()
+                        .name("B")
+                        .id(1L)
+                        .categoriesDetails(Set.of(CategoryDetail.builder()
+                                .id(1L)
+                                .build()))
+                        .games(Set.of(Game.builder()
+                                .id(1L)
+                                .build()))
+                        .build()))
+                .build();
+        TournamentEntity entity = getTournamentEntityFounded();
+
+        when(tournamentRepository.findTournamentByName(model.getName())).thenReturn(Optional.of(entity));
+
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.add(model));
+
+        assertEquals("Tournament value is not valid", result.getMessage());
+        assertEquals(RecordNotValidException.class, result.getClass());
+
+        verify(tournamentRepository, times(ZERO.value())).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(ZERO.value())).save(any());
     }
 
     @Test
@@ -89,7 +139,7 @@ class TournamentServiceTest
         var result = underTest.findAll();
 
         assertThat(result, hasItem(model));
-        verify(tournamentRepository, times(1)).findAll();
+        verify(tournamentRepository, times(ONE.value())).findAll();
     }
 
     @Test
@@ -113,8 +163,8 @@ class TournamentServiceTest
 
         assertEquals(model, result);
 
-        verify(categoryRepository, times(1)).save(entity);
-        verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(ONE.value())).save(entity);
+        verify(tournamentRepository, times(ONE.value())).findTournamentByName(model.getTournamentName());
 
     }
 
@@ -134,12 +184,12 @@ class TournamentServiceTest
 
         when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.empty());
 
-        RecordNotFoundException result = assertThrows(RecordNotFoundException.class, () -> underTest.addCategory(model));
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.addCategory(model));
 
-        assertEquals(String.format("Tournament doesn't exist", model.getName()), result.getMessage());
+        assertEquals("Tournament value is not valid", result.getMessage());
 
-        verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
-        verify(categoryRepository, times(0)).save(entity);
+        verify(tournamentRepository, times(ONE.value())).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(ZERO.value())).save(entity);
     }
 
     @Test
@@ -162,8 +212,8 @@ class TournamentServiceTest
 
         assertEquals(String.format("Category %s is already present", model.getName()), result.getMessage());
 
-        verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
-        verify(categoryRepository, times(0)).save(entity);
+        verify(tournamentRepository, times(ONE.value())).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(ZERO.value())).save(entity);
     }
 
     @Test
@@ -181,9 +231,9 @@ class TournamentServiceTest
 
         when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.empty());
 
-        RecordNotFoundException result = assertThrows(RecordNotFoundException.class, () -> underTest.addCategory(model));
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.addCategory(model));
 
-        assertEquals(String.format("Tournament doesn't exist", model.getName()), result.getMessage());
+        assertEquals("Tournament value is not valid", result.getMessage());
 
         verify(tournamentRepository, times(ZERO.value())).findTournamentByName(model.getTournamentName());
         verify(categoryRepository, times(ZERO.value())).save(entity);
@@ -204,12 +254,12 @@ class TournamentServiceTest
 
         when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.empty());
 
-        RecordNotFoundException result = assertThrows(RecordNotFoundException.class, () -> underTest.addCategory(null));
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.addCategory(null));
 
-        assertEquals(String.format("Tournament doesn't exist", model.getName()), result.getMessage());
+        assertEquals("Tournament value is not valid", result.getMessage());
 
-        verify(tournamentRepository, times(0)).findTournamentByName(model.getTournamentName());
-        verify(categoryRepository, times(0)).save(entity);
+        verify(tournamentRepository, times(ZERO.value())).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(ZERO.value())).save(entity);
     }
 
 

@@ -6,6 +6,7 @@ import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.exception.RecordNotFoundException;
+import com.bets.soccer.exception.RecordNotValidException;
 import com.bets.soccer.interfaces.CategoryRepository;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
@@ -34,7 +35,34 @@ public class TournamentService
                         .map(tournament -> {throw new RecordAlreadyExistsException(String.format("Tournament %s is already present", model.getName()));} )
                         .orElseGet(() -> tournamentRepository.save(modelToEntity(model))))
                 .map(o -> model)
-                .orElseThrow(() -> new RecordNotFoundException(String.format("Tournament doesn't exist")));
+                .orElseThrow(() -> new RecordNotValidException("Tournament value is not valid"));
+    }
+
+    public List<Tournament> findAll()
+    {
+        return tournamentRepository.findAll()
+                .stream().map(this::entityToModel)
+                .collect(Collectors.toList());
+    }
+
+    public Category addCategory(Category model)
+    {
+        return Optional.ofNullable(model)
+                .map(Category::getTournamentName)
+                .flatMap(tournamentRepository::findTournamentByName)
+                .map(tournament -> getTournamentEntity(model, tournament))
+                .map(tournament -> model)
+                .orElseThrow(() -> new RecordNotValidException("Tournament value is not valid"));
+    }
+
+    private TournamentEntity getTournamentEntity(Category model, TournamentEntity tournament) {
+        tournament.getCategories().stream()
+                .filter(categoryEntity -> categoryEntity.getName().equals(model.getName()))
+                .findFirst()
+                .ifPresentOrElse(
+                        categoryEntity -> { throw new RecordAlreadyExistsException(String.format("Category %s is already present", categoryEntity.getName()));},
+                        () -> categoryRepository.save(categoryModelToEntity(model, tournament)));
+        return tournament;
     }
 
     private TournamentEntity modelToEntity(Tournament model){
@@ -45,13 +73,6 @@ public class TournamentService
                 .logoPath(model.getLogoPath())
                 .isActive(model.isActive())
                 .build();
-    }
-
-    public List<Tournament> findAll()
-    {
-        return tournamentRepository.findAll()
-                .stream().map(this::entityToModel)
-                .collect(Collectors.toList());
     }
 
     private Tournament entityToModel(TournamentEntity entity)
@@ -123,26 +144,6 @@ public class TournamentService
                 .teamVisitorId(entity.getTeamVisitorId())
                 .isClosed(entity.isClosed())
                 .build();
-    }
-
-    public Category addCategory(Category model)
-    {
-      return Optional.ofNullable(model)
-                .map(Category::getTournamentName)
-                .flatMap(tournamentRepository::findTournamentByName)
-                .map(tournament -> getTournamentEntity(model, tournament))
-                .map(tournament -> model)
-                .orElseThrow(() -> new RecordNotFoundException(String.format("Tournament doesn't exist")));
-    }
-
-    private TournamentEntity getTournamentEntity(Category model, TournamentEntity tournament) {
-        tournament.getCategories().stream()
-                .filter(categoryEntity -> categoryEntity.getName().equals(model.getName()))
-                .findFirst()
-                .ifPresentOrElse(
-                        categoryEntity -> { throw new RecordAlreadyExistsException(String.format("Category %s is already present", categoryEntity.getName()));},
-                        () -> categoryRepository.save(categoryModelToEntity(model, tournament)));
-        return tournament;
     }
 
     private CategoryEntity categoryModelToEntity(Category model, TournamentEntity tournamentFound)

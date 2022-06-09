@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 public enum Numbers
 {
     ZERO(0),
-    UNO(1);
+    ONE(1);
     private int value;
 
     public int value() {
