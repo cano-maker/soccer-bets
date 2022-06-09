@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.bets.soccer.enums.Numbers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -55,8 +56,8 @@ class TournamentServiceTest
 
         assertEquals(model, result);
 
-        verify(tournamentRepository, times(1)).save(entity);
-        verify(tournamentRepository, times(1)).findTournamentByName(model.getName());
+        verify(tournamentRepository, times(UNO.value())).save(entity);
+        verify(tournamentRepository, times(UNO.value())).findTournamentByName(model.getName());
 
     }
 
@@ -162,6 +163,52 @@ class TournamentServiceTest
         assertEquals(String.format("Category %s is already present", model.getName()), result.getMessage());
 
         verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(0)).save(entity);
+    }
+
+    @Test
+    void saveCategoryShouldReturnFailWhenTournamentNameIsNull()
+    {
+        var tournamentEntity = getTournamentEntityFounded();
+        var model = Category.builder()
+                .name("B")
+                .build();
+
+        var entity = CategoryEntity.builder()
+                .name("B")
+                .tournament(tournamentEntity)
+                .build();
+
+        when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.empty());
+
+        RecordNotFoundException result = assertThrows(RecordNotFoundException.class, () -> underTest.addCategory(model));
+
+        assertEquals(String.format("Tournament doesn't exist", model.getName()), result.getMessage());
+
+        verify(tournamentRepository, times(ZERO.value())).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(ZERO.value())).save(entity);
+    }
+
+    @Test
+    void saveCategoryShouldReturnFailWhenCategoryIsNull()
+    {
+        var tournamentEntity = getTournamentEntityFounded();
+        var model = Category.builder()
+                .name("B")
+                .build();
+
+        var entity = CategoryEntity.builder()
+                .name("B")
+                .tournament(tournamentEntity)
+                .build();
+
+        when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.empty());
+
+        RecordNotFoundException result = assertThrows(RecordNotFoundException.class, () -> underTest.addCategory(null));
+
+        assertEquals(String.format("Tournament doesn't exist", model.getName()), result.getMessage());
+
+        verify(tournamentRepository, times(0)).findTournamentByName(model.getTournamentName());
         verify(categoryRepository, times(0)).save(entity);
     }
 

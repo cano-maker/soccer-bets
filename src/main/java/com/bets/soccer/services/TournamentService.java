@@ -129,7 +129,11 @@ public class TournamentService
 
     public Category addCategory(Category model)
     {
-        var tournamentFound = tournamentRepository.findTournamentByName(model.getTournamentName());
+        var tournamentFound = Optional.ofNullable(model)
+                .map(category -> category.getTournamentName())
+                .map(s -> tournamentRepository.findTournamentByName(model.getTournamentName()))
+                .orElseThrow(() -> new RecordNotFoundException(String.format("Tournament doesn't exist")));
+
         if(!tournamentFound.isPresent())
             throw new RecordNotFoundException(String.format("Tournament doesn't exist"));
 
