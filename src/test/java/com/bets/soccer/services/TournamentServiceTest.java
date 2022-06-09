@@ -5,6 +5,7 @@ import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
+import com.bets.soccer.exception.RecordNotFoundException;
 import com.bets.soccer.interfaces.CategoryRepository;
 import com.bets.soccer.interfaces.TournamentRepository;
 import com.bets.soccer.models.Category;
@@ -114,6 +115,54 @@ class TournamentServiceTest
         verify(categoryRepository, times(1)).save(entity);
         verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
 
+    }
+
+    @Test
+    void saveCategoryShouldReturnFailWhenTournamentNotFound()
+    {
+        var tournamentEntity = getTournamentEntityFounded();
+        var model = Category.builder()
+                .name("A")
+                .tournamentName("Aguila")
+                .build();
+
+        var entity = CategoryEntity.builder()
+                .name("A")
+                .tournament(tournamentEntity)
+                .build();
+
+        when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.empty());
+
+        RecordNotFoundException result = assertThrows(RecordNotFoundException.class, () -> underTest.addCategory(model));
+
+        assertEquals(String.format("Tournament doesn't exist", model.getName()), result.getMessage());
+
+        verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(0)).save(entity);
+    }
+
+    @Test
+    void saveCategoryShouldReturnFailWhenCategoryIsAlreadyExists()
+    {
+        var tournamentEntity = getTournamentEntityFounded();
+        var model = Category.builder()
+                .name("B")
+                .tournamentName("Aguila")
+                .build();
+
+        var entity = CategoryEntity.builder()
+                .name("B")
+                .tournament(tournamentEntity)
+                .build();
+
+        when(tournamentRepository.findTournamentByName(model.getTournamentName())).thenReturn(Optional.of(tournamentEntity));
+
+        RecordAlreadyExistsException result = assertThrows(RecordAlreadyExistsException.class, () -> underTest.addCategory(model));
+
+        assertEquals(String.format("Category %s is already present", model.getName()), result.getMessage());
+
+        verify(tournamentRepository, times(1)).findTournamentByName(model.getTournamentName());
+        verify(categoryRepository, times(0)).save(entity);
     }
 
 

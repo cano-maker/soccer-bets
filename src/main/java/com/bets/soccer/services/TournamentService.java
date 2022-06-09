@@ -127,7 +127,6 @@ public class TournamentService
                 .build();
     }
 
-    @Transactional
     public Category addCategory(Category model)
     {
         var tournamentFound = tournamentRepository.findTournamentByName(model.getTournamentName());
