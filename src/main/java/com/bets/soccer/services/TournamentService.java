@@ -129,25 +129,27 @@ public class TournamentService
 
     public Category addCategory(Category model)
     {
-        var tournamentFound = Optional.ofNullable(model)
-                .map(category -> category.getTournamentName())
-                .map(s -> tournamentRepository.findTournamentByName(model.getTournamentName()))
+      return Optional.ofNullable(model)
+                .map(Category::getTournamentName)
+                .flatMap(tournamentRepository::findTournamentByName)
+                .map(tournament -> getTournamentEntity(model, tournament))
+                .map(tournament -> model)
                 .orElseThrow(() -> new RecordNotFoundException(String.format("Tournament doesn't exist")));
-
-        if(!tournamentFound.isPresent())
-            throw new RecordNotFoundException(String.format("Tournament doesn't exist"));
-
-        if(isCategoryPresent(model, tournamentFound))
-            throw new RecordAlreadyExistsException(String.format("Category %s is already present", model.getName()));
-
-        var entity = categoryModelToEntity(model, tournamentFound.get());
-        categoryRepository.save(entity);
-        return model;
     }
 
-    private boolean isCategoryPresent(Category model, Optional<TournamentEntity> tournamentFound) {
-        return tournamentFound.get().getCategories()
-                .stream().anyMatch(categoryEntity -> categoryEntity.getName().equals(model.getName()));
+    private TournamentEntity getTournamentEntity(Category model, TournamentEntity tournament) {
+        tournament.getCategories().stream()
+                .filter(categoryEntity -> categoryEntity.getName().equals(model.getName()))
+                .findFirst()
+                .ifPresentOrElse(
+                        categoryEntity -> executeException(categoryEntity),
+                        () -> categoryRepository.save(categoryModelToEntity(model, tournament)));
+        return tournament;
+    }
+
+    private CategoryEntity executeException(CategoryEntity categoryEntity)
+    {
+        throw new RecordAlreadyExistsException(String.format("Category %s is already present", categoryEntity.getName()));
     }
 
     private CategoryEntity categoryModelToEntity(Category model, TournamentEntity tournamentFound)
