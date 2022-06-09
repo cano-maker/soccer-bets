@@ -14,8 +14,6 @@ import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Tournament;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,13 +28,13 @@ public class TournamentService
 
     public Tournament add(Tournament model) throws RecordAlreadyExistsException
     {
-        var tournamentFound = tournamentRepository.findTournamentByName(model.getName());
-        if (tournamentFound.isPresent()) {
-            var message = String.format("Tournament %s is already present", model.getName());
-            throw new RecordAlreadyExistsException(message);
-        }
-        tournamentRepository.save(modelToEntity(model));
-        return model;
+        return Optional.ofNullable(model)
+                .map(Tournament::getName)
+                .map(name -> tournamentRepository.findTournamentByName(name)
+                        .map(tournament -> {throw new RecordAlreadyExistsException(String.format("Tournament %s is already present", model.getName()));} )
+                        .orElseGet(() -> tournamentRepository.save(modelToEntity(model))))
+                .map(o -> model)
+                .orElseThrow(() -> new RecordNotFoundException(String.format("Tournament doesn't exist")));
     }
 
     private TournamentEntity modelToEntity(Tournament model){
@@ -88,7 +86,7 @@ public class TournamentService
     private Set<CategoryDetail> categoriesEntitiesToModel(Set<CategoryDetailEntity> categoriesDetails)
     {
         return categoriesDetails.stream()
-                .map(categoryDetailEntity -> categoryEntityToModel(categoryDetailEntity))
+                .map(this::categoryEntityToModel)
                 .collect(Collectors.toSet());
     }
 
@@ -110,7 +108,7 @@ public class TournamentService
     private Set<Game> gamesEntitiesToModel(Set<GameEntity> games)
     {
         return games.stream()
-                .map(gameEntity -> gameEntityToModel(gameEntity))
+                .map(this::gameEntityToModel)
                 .collect(Collectors.toSet());
     }
 
@@ -142,14 +140,9 @@ public class TournamentService
                 .filter(categoryEntity -> categoryEntity.getName().equals(model.getName()))
                 .findFirst()
                 .ifPresentOrElse(
-                        categoryEntity -> executeException(categoryEntity),
+                        categoryEntity -> { throw new RecordAlreadyExistsException(String.format("Category %s is already present", categoryEntity.getName()));},
                         () -> categoryRepository.save(categoryModelToEntity(model, tournament)));
         return tournament;
-    }
-
-    private CategoryEntity executeException(CategoryEntity categoryEntity)
-    {
-        throw new RecordAlreadyExistsException(String.format("Category %s is already present", categoryEntity.getName()));
     }
 
     private CategoryEntity categoryModelToEntity(Category model, TournamentEntity tournamentFound)
