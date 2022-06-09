@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.Optional;
 
+import static com.bets.soccer.enums.Numbers.*;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,7 +46,7 @@ class TeamControllerTest
         assertEquals(model, entity);
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(teamService, times(1)).add(model);
+        verify(teamService, times(ONE.value())).add(model);
     }
 
     @Test
@@ -67,6 +68,6 @@ class TeamControllerTest
         assertThat(list, hasItem(model));
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(teamService, times(1)).findAll();
+        verify(teamService, times(ONE.value())).findAll();
     }
 }

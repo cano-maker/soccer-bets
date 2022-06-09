@@ -3,20 +3,17 @@ package com.bets.soccer.services;
 import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TeamEntity;
-import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
 import com.bets.soccer.interfaces.TeamRepository;
 import com.bets.soccer.models.CategoryDetail;
 import com.bets.soccer.models.Game;
 import com.bets.soccer.models.Team;
-import com.bets.soccer.models.Tournament;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
+import static com.bets.soccer.enums.Numbers.*;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
@@ -48,8 +45,8 @@ class TeamServiceTest
 
         assertEquals(result, model);
 
-        verify(teamRepository, times(1)).save(entity);
-        verify(teamRepository, times(1)).findTeamByName(model.getName());
+        verify(teamRepository, times(ONE.value())).save(entity);
+        verify(teamRepository, times(ONE.value())).findTeamByName(model.getName());
     }
 
 
@@ -66,8 +63,8 @@ class TeamServiceTest
 
         assertEquals(String.format("Team %s is already present", model.getName()), result.getMessage());
 
-        verify(teamRepository, times(1)).findTeamByName(model.getName());
-        verify(teamRepository, times(0)).save(any());
+        verify(teamRepository, times(ONE.value())).findTeamByName(model.getName());
+        verify(teamRepository, times(ZERO.value())).save(any());
     }
 
     @Test
@@ -85,7 +82,7 @@ class TeamServiceTest
 
         assertThat(result, hasItem(model));
 
-        verify(teamRepository, times(1)).findAll();
+        verify(teamRepository, times(ONE.value())).findAll();
     }
 
     private TeamEntity getTeamEntityFounded() {

@@ -5,7 +5,6 @@ import com.bets.soccer.entities.CategoryEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TournamentEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
-import com.bets.soccer.exception.RecordNotFoundException;
 import com.bets.soccer.exception.RecordNotValidException;
 import com.bets.soccer.interfaces.CategoryRepository;
 import com.bets.soccer.interfaces.TournamentRepository;

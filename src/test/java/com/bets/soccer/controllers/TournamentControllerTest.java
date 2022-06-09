@@ -5,9 +5,10 @@ import com.bets.soccer.services.TournamentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
 import java.time.LocalDate;
 import java.util.List;
+
+import static com.bets.soccer.enums.Numbers.*;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +49,7 @@ class TournamentControllerTest
         assertEquals(model, entity);
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(tournamentService, times(1)).add(model);
+        verify(tournamentService, times(ONE.value())).add(model);
     }
 
     @Test
@@ -74,7 +75,7 @@ class TournamentControllerTest
         assertThat(list, hasItem(model));
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(tournamentService, times(1)).findAll();
+        verify(tournamentService, times(ONE.value())).findAll();
     }
 
     @Test
@@ -94,7 +95,7 @@ class TournamentControllerTest
         assertEquals(model, entity);
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(tournamentService, times(1)).addCategory(model);
+        verify(tournamentService, times(ONE.value())).addCategory(model);
     }
 
 }
