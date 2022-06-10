@@ -4,10 +4,9 @@ import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TeamEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
+import com.bets.soccer.exception.RecordNotValidException;
 import com.bets.soccer.interfaces.TeamRepository;
-import com.bets.soccer.models.CategoryDetail;
-import com.bets.soccer.models.Game;
-import com.bets.soccer.models.Team;
+import com.bets.soccer.models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -64,6 +63,49 @@ class TeamServiceTest
         assertEquals(String.format("Team %s is already present", model.getName()), result.getMessage());
 
         verify(teamRepository, times(ONE.value())).findTeamByName(model.getName());
+        verify(teamRepository, times(ZERO.value())).save(any());
+    }
+
+    @Test
+    void saveShouldReturnFailWhenTournamentIsNull()
+    {
+        Team model = getTeamModel();
+        TeamEntity entity = getTeamEntityFounded();
+
+        when(teamRepository.findTeamByName(model.getName())).thenReturn(Optional.of(entity));
+
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.add(null));
+
+        assertEquals("Team value is not valid", result.getMessage());
+        assertEquals(RecordNotValidException.class, result.getClass());
+
+        verify(teamRepository, times(ZERO.value())).findTeamByName(model.getName());
+        verify(teamRepository, times(ZERO.value())).save(any());
+    }
+
+    @Test
+    void saveShouldReturnFailWhenTournamentNameIsNull()
+    {
+         Team model = Team.builder()
+                 .logoPath("/home/logo.png")
+                 .categoriesDetails(Set.of(CategoryDetail.builder()
+                         .id(1L)
+                         .build()))
+                 .games(Set.of(Game.builder()
+                         .id(1L)
+                         .build()))
+                 .build();
+
+        TeamEntity entity = getTeamEntityFounded();
+
+        when(teamRepository.findTeamByName(model.getName())).thenReturn(Optional.of(entity));
+
+        RecordNotValidException result = assertThrows(RecordNotValidException.class, () -> underTest.add(model));
+
+        assertEquals("Team value is not valid", result.getMessage());
+        assertEquals(RecordNotValidException.class, result.getClass());
+
+        verify(teamRepository, times(ZERO.value())).findTeamByName(model.getName());
         verify(teamRepository, times(ZERO.value())).save(any());
     }
 

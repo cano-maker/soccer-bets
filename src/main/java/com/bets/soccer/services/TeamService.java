@@ -4,6 +4,7 @@ import com.bets.soccer.entities.CategoryDetailEntity;
 import com.bets.soccer.entities.GameEntity;
 import com.bets.soccer.entities.TeamEntity;
 import com.bets.soccer.exception.RecordAlreadyExistsException;
+import com.bets.soccer.exception.RecordNotValidException;
 import com.bets.soccer.interfaces.TeamRepository;
 import com.bets.soccer.models.CategoryDetail;
 import com.bets.soccer.models.Game;
@@ -23,14 +24,13 @@ public class TeamService
 
     public Optional<Team> add(Team model)
     {
-        var teamFound = teamRepository.findTeamByName(model.getName());
-        if (teamFound.isPresent()) {
-            var message = String.format("Team %s is already present", model.getName());
-            throw new RecordAlreadyExistsException(message);
-        }
-        teamRepository.save(modelToEntity(model));
-        return Optional.of(model);
-
+        return Optional.ofNullable(model)
+                .map(Team::getName)
+                .map(name -> teamRepository.findTeamByName(name)
+                        .map(teamEntity -> {throw new RecordAlreadyExistsException(String.format("Team %s is already present", teamEntity.getName()));})
+                        .orElseGet(() -> teamRepository.save(modelToEntity(model))))
+                .map(o -> Optional.of(model))
+                .orElseThrow(() -> new RecordNotValidException("Team value is not valid"));
     }
 
     private TeamEntity modelToEntity(Team model)
